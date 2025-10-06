@@ -19,6 +19,8 @@ const PriceSchema: Schema = new Schema({
   },
 });
 
+PriceSchema.index({ type: 1 }, { unique: true });
+
 PriceSchema.set("toJSON", { getters: true, virtuals: false });
 
 export default mongoose.model<IPrice>("Price", PriceSchema);
