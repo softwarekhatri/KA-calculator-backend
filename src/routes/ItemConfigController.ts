@@ -1,5 +1,5 @@
 import { Router } from "express";
-import ItemConfig from "../models/itemConfig";
+import ItemConfig, { VariantType } from "../models/itemConfig";
 
 const router = Router();
 
@@ -22,6 +22,45 @@ router.post("/", async (req, res) => {
     res
       .status(500)
       .send({ error: "Failed to create item config", details: err });
+  }
+});
+
+router.put("/", async (req, res) => {
+  try {
+    const { _id, ...rest } = req.body;
+    const updated = await ItemConfig.findOneAndUpdate(
+      { _id },
+      { $set: { ...rest } },
+      { upsert: false, new: true }
+    );
+    return res.status(200).send(updated);
+  } catch (err) {
+    res
+      .status(500)
+      .send({ error: "Failed to update item config", details: err });
+  }
+});
+
+router.delete("/", async (req, res) => {
+  try {
+    const { _id } = req.body;
+    if (!_id) {
+      return res
+        .status(400)
+        .send({ error: "_id is required to delete item config" });
+    }
+    const deleted = await ItemConfig.findByIdAndDelete(_id);
+    if (!deleted) {
+      return res.status(404).send({ error: "Item config not found" });
+    }
+    return res
+      .status(200)
+      .send({ message: "Item config deleted successfully", deleted });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    res
+      .status(500)
+      .send({ error: "Failed to delete item config", details: errorMessage });
   }
 });
 
