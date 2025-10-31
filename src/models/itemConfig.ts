@@ -5,19 +5,32 @@ export enum VariantType {
   SILVER = "SILVER",
 }
 
+export enum MakingChargeType {
+  FIXED = "FIXED",
+  PER_GRAM = "PER_GRAM",
+  PERCENTAGE = "PERCENTAGE",
+}
+
 export interface IItemConfig extends Document {
   name: string;
-  tunch: number;
+  purchaseTunch: number;
+  saleTunch: number | null;
   addOnPrice?: number | null;
   makingCharge?: number | null;
+  makingChargeType?: string | null;
   variant: VariantType;
 }
 
 const ItemConfigSchema: Schema = new Schema({
   name: { type: String, required: true },
-  tunch: {
+  purchaseTunch: {
     type: mongoose.Types.Decimal128,
     required: true,
+    get: (v: any) => (v == null ? 0 : parseFloat(v.toString())),
+  },
+  saleTunch: {
+    type: mongoose.Types.Decimal128,
+    required: false,
     get: (v: any) => (v == null ? 0 : parseFloat(v.toString())),
   },
   addOnPrice: {
@@ -35,6 +48,11 @@ const ItemConfigSchema: Schema = new Schema({
   variant: {
     type: String,
     enum: Object.values(VariantType),
+    required: true,
+  },
+  makingChargeType: {
+    type: String,
+    enum: Object.values(MakingChargeType),
     required: true,
   },
 });
